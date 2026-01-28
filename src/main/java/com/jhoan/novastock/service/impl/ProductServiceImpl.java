@@ -10,6 +10,8 @@ import com.jhoan.novastock.service.ProductService;
 import com.jhoan.novastock.web.exception.AlreadyExistsException;
 import com.jhoan.novastock.web.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +50,20 @@ public class ProductServiceImpl implements ProductService {
                 savedProduct.getStockQuantity(),
                 savedProduct.getCategory().getName()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDTO> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(product -> new ProductResponseDTO(
+                        product.getId(),
+                        product.getName(),
+                        product.getDescription(),
+                        product.getPrice(),
+                        product.getStockQuantity(),
+                        product.getCategory().getName()
+                ));
     }
 
 }
