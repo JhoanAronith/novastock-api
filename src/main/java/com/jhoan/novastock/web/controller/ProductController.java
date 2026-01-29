@@ -33,4 +33,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAll(pageable));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> edit(@Valid @RequestBody ProductRequestDTO dto, @PathVariable Long id) {
+        ProductResponseDTO response = productService.edit(dto, id);
+        return ResponseEntity.ok(response);
+    }
+
 }

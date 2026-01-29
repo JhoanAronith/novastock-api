@@ -66,4 +66,36 @@ public class ProductServiceImpl implements ProductService {
                 ));
     }
 
+    @Override
+    @Transactional
+    public ProductResponseDTO edit(ProductRequestDTO dto, Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("El producto con id " + id + "no existe"));
+
+    if (!product.getName().equals(dto.name()) && productRepository.existsByName(dto.name())) {
+        throw new AlreadyExistsException("Ya existe un producto con el nombre" + dto.name());
+    }
+
+    Category category = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
+
+        product.setName(dto.name());
+        product.setDescription(dto.description());
+        product.setPrice(dto.price());
+        product.setStockQuantity(dto.stockQuantity());
+        product.setCategory(category);
+
+        Product savedProduct = productRepository.save(product);
+
+        return new ProductResponseDTO(
+                savedProduct.getId(),
+                savedProduct.getName(),
+                savedProduct.getDescription(),
+                savedProduct.getPrice(),
+                savedProduct.getStockQuantity(),
+                savedProduct.getCategory().getName()
+        );
+    }
+
 }

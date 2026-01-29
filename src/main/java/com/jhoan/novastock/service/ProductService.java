@@ -9,4 +9,6 @@ public interface ProductService {
 
     ProductResponseDTO save(ProductRequestDTO dto);
     Page<ProductResponseDTO> findAll(Pageable pageable);
+    ProductResponseDTO edit(ProductRequestDTO dto, Long id);
+
 }
