@@ -2,6 +2,7 @@ package com.jhoan.novastock.web.controller;
 
 import com.jhoan.novastock.domain.entity.Product;
 import com.jhoan.novastock.dto.request.ProductRequestDTO;
+import com.jhoan.novastock.dto.request.StockAdjustmentDTO;
 import com.jhoan.novastock.dto.response.ProductResponseDTO;
 import com.jhoan.novastock.service.ProductService;
 import jakarta.validation.Valid;
@@ -36,6 +37,12 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> edit(@Valid @RequestBody ProductRequestDTO dto, @PathVariable Long id) {
         ProductResponseDTO response = productService.edit(dto, id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ProductResponseDTO> adjustStock(@Valid @RequestBody StockAdjustmentDTO dto, @PathVariable Long id) {
+        ProductResponseDTO response = productService.adjustStock(dto, id);
         return ResponseEntity.ok(response);
     }
 

@@ -3,6 +3,7 @@ package com.jhoan.novastock.service.impl;
 import com.jhoan.novastock.domain.entity.Category;
 import com.jhoan.novastock.domain.entity.Product;
 import com.jhoan.novastock.dto.request.ProductRequestDTO;
+import com.jhoan.novastock.dto.request.StockAdjustmentDTO;
 import com.jhoan.novastock.dto.response.ProductResponseDTO;
 import com.jhoan.novastock.repository.CategoryRepository;
 import com.jhoan.novastock.repository.ProductRepository;
@@ -95,6 +96,35 @@ public class ProductServiceImpl implements ProductService {
                 savedProduct.getPrice(),
                 savedProduct.getStockQuantity(),
                 savedProduct.getCategory().getName()
+        );
+    }
+
+    @Override
+    @Transactional
+    public ProductResponseDTO adjustStock(StockAdjustmentDTO dto, Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("El producto con id " + id + " no existe."));
+
+        int nuevoStock = product.getStockQuantity() + dto.quantity();
+
+        if (nuevoStock < 0) {
+            throw new IllegalArgumentException("Operación inválida: El stock resultante no puede ser menor a cero. Stock actual: " + product.getStockQuantity());
+        }
+
+        product.setStockQuantity(nuevoStock);
+
+        if (nuevoStock == 0) {
+            System.out.println("Alerta: El producto " + product.getName() + " se ha agotado");
+        }
+
+        return new ProductResponseDTO(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getStockQuantity(),
+                product.getCategory().getName()
         );
     }
 
