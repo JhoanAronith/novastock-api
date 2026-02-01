@@ -92,3 +92,8 @@ Regla clave:
 
 ```bash
 docker-compose up -d
+```
+
+## 🚀 Documentación de la API
+Una vez que el proyecto esté en ejecución, puedes acceder a la documentación interactiva en:
+[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
