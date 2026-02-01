@@ -10,6 +10,27 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - novastock-network
+
+  novastock-api:
+    build: .
+    container_name: novastock-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/novastock_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin_pass
+      - JWT_SECRET=RM.15.NOVASTOCKAPI/JAMM/25032005/1902/36
+    depends_on:
+      - postgres-db
+    networks:
+      - novastock-network
+
+networks:
+  novastock-network:
+    driver: bridge
 
 volumes:
   postgres_data:
