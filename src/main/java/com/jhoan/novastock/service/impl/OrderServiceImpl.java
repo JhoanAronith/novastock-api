@@ -3,17 +3,21 @@ package com.jhoan.novastock.service.impl;
 import com.jhoan.novastock.domain.entity.Order;
 import com.jhoan.novastock.domain.entity.OrderItem;
 import com.jhoan.novastock.domain.entity.Product;
+import com.jhoan.novastock.domain.entity.User;
 import com.jhoan.novastock.dto.request.OrderItemRequestDTO;
 import com.jhoan.novastock.dto.request.OrderRequestDTO;
 import com.jhoan.novastock.dto.response.OrderItemResponseDTO;
 import com.jhoan.novastock.dto.response.OrderResponseDTO;
+import com.jhoan.novastock.dto.response.UserResponseDTO;
 import com.jhoan.novastock.repository.OrderItemRepository;
 import com.jhoan.novastock.repository.OrderRepository;
 import com.jhoan.novastock.repository.ProductRepository;
+import com.jhoan.novastock.repository.UserRepository;
 import com.jhoan.novastock.service.OrderService;
 import com.jhoan.novastock.web.exception.InsufficientStockException;
 import com.jhoan.novastock.web.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +32,19 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO dto) {
 
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
         Order order = new Order();
+        order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
         order.setStatus("PENDING");
 
@@ -112,6 +123,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponseDTO mapToResponseDTO(Order order) {
+
+        UserResponseDTO userDto = new UserResponseDTO(
+                order.getUser().getId(),
+                order.getUser().getUsername(),
+                order.getUser().getEmail()
+        );
+
         List<OrderItemResponseDTO> itemDTOs = order.getItems().stream()
                 .map(this::mapItemResponseDTO)
                 .toList();
@@ -120,6 +138,7 @@ public class OrderServiceImpl implements OrderService {
                 order.getOrderDate(),
                 order.getStatus(),
                 order.getTotalAmount(),
+                userDto,
                 itemDTOs
         );
     }

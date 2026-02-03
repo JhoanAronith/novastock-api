@@ -9,5 +9,6 @@ public record OrderResponseDTO(
         LocalDateTime orderDate,
         String status,
         BigDecimal totalAmount,
+        UserResponseDTO user,
         List<OrderItemResponseDTO> items
 ) { }
