@@ -22,15 +22,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
@@ -107,7 +106,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = org.junit.jupiter.api.Assertions.assertThrows(
+        ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
                 () -> orderService.getOrderById(orderId)
         );
@@ -165,6 +164,19 @@ public class OrderServiceTest {
         assertThat(product.getStockQuantity()).isEqualTo(15);
 
         verify(orderRepository).save(order);
+    }
+
+    @Test
+    void cancelOrder_WhenOrderIsAlreadyCancelled_ShouldThrowException() {
+        Order order = new Order();
+        order.setStatus("CANCELLED");
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class, () -> {
+            orderService.cancelOrder(1L);
+        });
+
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
 }
